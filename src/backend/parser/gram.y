@@ -689,6 +689,7 @@ static Node *makeRecursiveViewSelect(char *relname, List *aliases, Node *query);
 %token <keyword> ABORT_P ABSENT ABSOLUTE_P ACCESS ACTION ADD_P ADMIN AFTER
 	AGGREGATE ALL ALSO ALTER ALWAYS ANALYSE ANALYZE AND ANY ARRAY AS ASC
 	ASENSITIVE ASSERTION ASSIGNMENT ASYMMETRIC ATOMIC AT ATTACH ATTRIBUTE AUTHORIZATION
+	AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
 
 	BACKWARD BEFORE BEGIN_P BETWEEN BIGINT BINARY BIT
 	BOOLEAN_P BOTH BREADTH BY
@@ -3415,6 +3416,14 @@ copy_opt_item:
 			| DELIMITER opt_as Sconst
 				{
 					$$ = makeDefElem("delimiter", (Node *) makeString($3), @1);
+				}
+			| AWS_ACCESS_KEY_ID opt_as Sconst
+				{
+					$$ = makeDefElem("aws_access_key_id", (Node *) makeString($3), @1);
+				}
+			| AWS_SECRET_ACCESS_KEY opt_as Sconst
+				{
+					$$ = makeDefElem("aws_secret_access_key", (Node *) makeString($3), @1);
 				}
 			| NULL_P opt_as Sconst
 				{
@@ -17145,6 +17154,8 @@ unreserved_keyword:
 			| ATOMIC
 			| ATTACH
 			| ATTRIBUTE
+			| AWS_ACCESS_KEY_ID
+			| AWS_SECRET_ACCESS_KEY
 			| BACKWARD
 			| BEFORE
 			| BEGIN_P
@@ -17673,6 +17684,8 @@ bare_label_keyword:
 			| ATTACH
 			| ATTRIBUTE
 			| AUTHORIZATION
+			| AWS_ACCESS_KEY_ID
+			| AWS_SECRET_ACCESS_KEY
 			| BACKWARD
 			| BEFORE
 			| BEGIN_P

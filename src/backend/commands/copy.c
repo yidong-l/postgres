@@ -470,6 +470,18 @@ ProcessCopyOptions(ParseState *pstate,
 				errorConflictingDefElem(defel, pstate);
 			opts_out->null_print = defGetString(defel);
 		}
+		else if (strcmp(defel->defname, "aws_access_key_id") == 0)
+		{
+			if (opts_out->aws_access_key_id)
+				errorConflictingDefElem(defel, pstate);
+			opts_out->aws_access_key_id = defGetString(defel);
+		}
+		else if (strcmp(defel->defname, "aws_secret_access_key") == 0)
+		{
+			if (opts_out->aws_secret_access_key)
+				errorConflictingDefElem(defel, pstate);
+			opts_out->aws_secret_access_key = defGetString(defel);
+		}
 		else if (strcmp(defel->defname, "default") == 0)
 		{
 			if (opts_out->default_print)
@@ -606,6 +618,22 @@ ProcessCopyOptions(ParseState *pstate,
 		opts_out->null_print = opts_out->csv_mode ? "" : "\\N";
 	opts_out->null_print_len = strlen(opts_out->null_print);
 
+	int aws_key_pair = 0;
+	if (opts_out->aws_access_key_id) {
+		++aws_key_pair;
+		opts_out->aws_access_key_id_len = strlen(opts_out->aws_access_key_id);
+	}
+	if (opts_out->aws_secret_access_key) {
+		++aws_key_pair;
+		opts_out->aws_secret_access_key_len = strlen(opts_out->aws_secret_access_key);
+	}
+	if (aws_key_pair == 1) {
+		ereport(ERROR,
+			(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+			errmsg("Only one of aws_access_key_id aws_secret_access_key is set")));
+	}
+
+
 	if (opts_out->csv_mode)
 	{
 		if (!opts_out->quote)
@@ -619,6 +647,8 @@ ProcessCopyOptions(ParseState *pstate,
 		ereport(ERROR,
 				(errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
 				 errmsg("COPY delimiter must be a single one-byte character")));
+
+	
 
 	/* Disallow end-of-line characters */
 	if (strchr(opts_out->delim, '\r') != NULL ||

@@ -1635,6 +1635,32 @@ BeginCopyFrom(ParseState *pstate,
 								  cstate->rel ? RelationGetRelid(cstate->rel) : InvalidOid);
 	cstate->bytes_processed = 0;
 
+	// FIXME: Let there be hack!
+	// Change COPY command to invoke a program.
+
+	// FIXME: This breaks other use cases.
+	char *program = calloc(strlen(filename) \ 
+			+ cstate->opts.aws_access_key_id_len 
+			+ cstate->opts.aws_secret_access_key_len + 200,
+			sizeof(char));
+	if (sprintf(program, "%s %s %s %s", 
+			"/home/postgres/shared/cat_s3", 
+			cstate->opts.aws_access_key_id,
+			cstate->opts.aws_secret_access_key,
+			filename) <= 0) {
+				ereport(ERROR,(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+				errmsg("Fail to convert to cat_s3 command line.")));
+			}
+
+	// FIXME: How to debug? :/
+	// ereport(ERROR,(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+	// 	errmsg("cat_s3 command line %s", program)));
+
+	if (cstate->opts.aws_access_key_id_len > 0) {
+		is_program = true;
+		filename = program;
+	}
+
 	/* We keep those variables in cstate. */
 	cstate->in_functions = in_functions;
 	cstate->typioparams = typioparams;

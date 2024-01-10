@@ -46,6 +46,10 @@ typedef struct CopyFormatOptions
 	CopyHeaderChoice header_line;	/* header line? */
 	char	   *null_print;		/* NULL marker string (server encoding!) */
 	int			null_print_len; /* length of same */
+	char 		*aws_access_key_id;
+	int 		aws_access_key_id_len;
+	char 		*aws_secret_access_key;
+	int 		aws_secret_access_key_len;
 	char	   *null_print_client;	/* same converted to file encoding */
 	char	   *default_print;	/* DEFAULT marker string */
 	int			default_print_len;	/* length of same */
